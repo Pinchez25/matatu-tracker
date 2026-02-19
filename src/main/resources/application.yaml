@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: matatu-tracker
+
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        spring.json.add.type.headers: true
+
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.trusted.packages: "org.matatu.tracker.model"
+
+# ── Application-specific settings ─────────────────────────────────────────────
+app:
+  kafka:
+    # Number of partitions per topic.
+    # KEY CONCEPT: set this to at least the number of consumer threads you want.
+    # With 3 partitions and concurrency=3, each thread owns exactly one partition.
+    partitions: 3
+    replication-factor: 1   # use 1 for local dev; use 3 in production
+
+  simulator:
+    # How often the fleet simulator fires (milliseconds)
+    gps-interval-ms: 3000
+    fare-interval-ms: 5000
+    enabled: true           # set to false to disable the simulator
+
+  scheduling:
+    enabled: false
+
+
+# ── Actuator for health checks ─────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, kafka
+  endpoint:
+    health:
+      show-details: always
+
+# ── Logging ────────────────────────────────────────────────────────────────────
+logging:
+  level:
+    org.matatu.tracker: INFO
+    # Uncomment to see raw Kafka client debug logs (very verbose but educational!)
+    # org.apache.kafka: DEBUG
+    # org.springframework.kafka: DEBUG
+
