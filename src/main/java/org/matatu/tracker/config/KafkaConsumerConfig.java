@@ -2,6 +2,7 @@ package org.matatu.tracker.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.matatu.tracker.model.EnrichedLocationEvent;
 import org.matatu.tracker.model.FareEvent;
 import org.matatu.tracker.model.LocationEvent;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,63 +35,63 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    // ── Location Events ──────────────────────────────────────────────────────
+    private static final String TRUSTED_PACKAGES = "org.matatu.tracker.model";
 
     @Bean
     public ConsumerFactory<String, LocationEvent> locationConsumerFactory() {
-        JacksonJsonDeserializer<LocationEvent> deserializer = new JacksonJsonDeserializer<>(LocationEvent.class, false);
-        deserializer.addTrustedPackages("org.matatu.tracker.model");
-
-        return new DefaultKafkaConsumerFactory<>(
-                baseConsumerProps(),
-                new StringDeserializer(),
-                deserializer
-        );
+        return consumerFactory(LocationEvent.class);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, LocationEvent> locationListenerContainerFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, LocationEvent>();
-        factory.setConsumerFactory(locationConsumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
-
-        return factory;
+        return listenerFactory(locationConsumerFactory());
     }
 
-    // ── Fare Events ───────────────────────────────────────────────────────────
+    // ── FareEvent ─────────────────────────────────────────────────────────────
 
     @Bean
     public ConsumerFactory<String, FareEvent> fareConsumerFactory() {
-        JacksonJsonDeserializer<FareEvent> deserializer = new JacksonJsonDeserializer<>(FareEvent.class, false);
-        deserializer.addTrustedPackages("org.matatu.tracker.model");
-
-        return new DefaultKafkaConsumerFactory<>(
-                baseConsumerProps(),
-                new StringDeserializer(),
-                deserializer
-        );
+        return consumerFactory(FareEvent.class);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FareEvent> fareListenerContainerFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, FareEvent>();
-        factory.setConsumerFactory(fareConsumerFactory());
+        return listenerFactory(fareConsumerFactory());
+    }
+
+    // ── EnrichedLocationEvent (Phase 2) ───────────────────────────────────────
+
+    @Bean
+    public ConsumerFactory<String, EnrichedLocationEvent> enrichedLocationConsumerFactory() {
+        return consumerFactory(EnrichedLocationEvent.class);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, EnrichedLocationEvent> enrichedLocationListenerContainerFactory() {
+        return listenerFactory(enrichedLocationConsumerFactory());
+    }
+
+    // ── Generic helpers — DRY: no repeated factory boilerplate ────────────────
+
+    private <T> ConsumerFactory<String, T> consumerFactory(Class<T> targetType) {
+        JacksonJsonDeserializer<T> deserializer = new JacksonJsonDeserializer<>(targetType, false);
+        deserializer.addTrustedPackages(TRUSTED_PACKAGES);
+        return new DefaultKafkaConsumerFactory<>(baseProps(), new StringDeserializer(), deserializer);
+    }
+
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> listenerFactory(
+            ConsumerFactory<String, T> consumerFactory) {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, T>();
+        factory.setConsumerFactory(consumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
         return factory;
     }
 
-    // ── Shared base consumer properties ──────────────────────────────────────
-
-    /**
-     * Properties common to all consumers.
-     * "earliest" means: when a new consumer group starts, read from the very
-     * beginning of the topic — great for development and debugging.
-     */
-    private Map<String, Object> baseConsumerProps() {
+    private Map<String, Object> baseProps() {
         return Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false  // we control commits manually via ack mode
+                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false
         );
     }
 }
