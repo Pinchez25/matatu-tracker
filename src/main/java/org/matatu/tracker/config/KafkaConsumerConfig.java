@@ -1,11 +1,11 @@
 package org.matatu.tracker.config;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.matatu.tracker.model.EnrichedLocationEvent;
 import org.matatu.tracker.model.FareEvent;
 import org.matatu.tracker.model.LocationEvent;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -30,10 +30,11 @@ import java.util.Map;
  * In production you'd lock this down to specific packages only.
  */
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConsumerConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
+    private final MatatuTrackerProperties properties;
+
 
     private static final String TRUSTED_PACKAGES = "org.matatu.tracker.model";
 
@@ -71,7 +72,6 @@ public class KafkaConsumerConfig {
         return listenerFactory(enrichedLocationConsumerFactory());
     }
 
-    // ── Generic helpers — DRY: no repeated factory boilerplate ────────────────
 
     private <T> ConsumerFactory<String, T> consumerFactory(Class<T> targetType) {
         JacksonJsonDeserializer<T> deserializer = new JacksonJsonDeserializer<>(targetType, false);
@@ -89,7 +89,7 @@ public class KafkaConsumerConfig {
 
     private Map<String, Object> baseProps() {
         return Map.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getKafka().getBootstrapServers(),
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false
         );
