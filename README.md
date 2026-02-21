@@ -58,6 +58,9 @@ docker compose up -d
 
 The simulator will start automatically, and you should see live GPS pings and fare logs in the console.
 
+### 4. Manual Control (Disable Simulator)
+If you'd like to use the system purely manually via the REST API, you can disable the automatic fleet simulator by setting `app.scheduling.enabled=false` in `src/main/resources/application.yaml`.
+
 ---
 
 ## 🗺️ Kafka Topology
