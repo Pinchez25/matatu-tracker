@@ -127,14 +127,6 @@
             </includes>
             <sortPom/>
           </pom>
-
-          <!-- Markdown -->
-          <markdown>
-            <includes>
-              <include>**/*.md</include>
-            </includes>
-            <flexmark/>
-          </markdown>
         </configuration>
         <executions>
           <execution>
