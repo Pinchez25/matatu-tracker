@@ -40,7 +40,17 @@ This project simulates a fleet of matatus broadcasting GPS coordinates and fare 
 - JDK 17+
 - Maven
 
-### 2. Start Kafka Infrastructure
+### 2. Clone the Project
+
+```bash
+# Via HTTPS
+git clone https://github.com/Pinchez25/matatu-tracker.git
+
+# Via SSH
+git clone git@github.com:Pinchez25/matatu-tracker.git
+```
+
+### 3. Start Kafka Infrastructure
 
 Launch the Kafka broker and Kafka UI using Docker Compose:
 
@@ -50,7 +60,7 @@ docker compose up -d
 
 *Kafka UI will be available at `http://localhost:8090`*
 
-### 3. Run the Application
+### 4. Run the Application
 
 ```powershell
 ./mvnw spring-boot:run
@@ -58,7 +68,7 @@ docker compose up -d
 
 The simulator will start automatically, and you should see live GPS pings and fare logs in the console.
 
-### 4. Manual Control (Disable Simulator)
+### 5. Manual Control (Disable Simulator)
 If you'd like to use the system purely manually via the REST API, you can disable the automatic fleet simulator by setting `app.scheduling.enabled=false` in `src/main/resources/application.yaml`.
 
 ---
