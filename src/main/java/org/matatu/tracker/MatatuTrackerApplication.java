@@ -9,5 +9,4 @@ public class MatatuTrackerApplication {
     public static void main(String[] args) {
         SpringApplication.run(MatatuTrackerApplication.class, args);
     }
-
 }

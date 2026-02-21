@@ -1,6 +1,7 @@
 package org.matatu.tracker.config;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.matatu.tracker.model.EnrichedLocationEvent;
@@ -14,27 +15,23 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Configures typed Kafka listener container factories for each event type.
- * <p>
- * KEY CONCEPTS:
- * - ConsumerFactory: creates Kafka Consumer instances with the correct deserializers.
- * - ConcurrentKafkaListenerContainerFactory: the Spring abstraction that manages
- * a pool of consumer threads. The 'concurrency' on @KafkaListener overrides
- * the factory default.
- * - MANUAL_IMMEDIATE ack mode: we acknowledge each message immediately after
- * processing. Later phases will explore batch acks and transactions.
- * - TRUSTED_PACKAGES: required by JsonDeserializer to deserialise our event records.
- * In production you'd lock this down to specific packages only.
+ *
+ * <p>KEY CONCEPTS: - ConsumerFactory: creates Kafka Consumer instances with the correct
+ * deserializers. - ConcurrentKafkaListenerContainerFactory: the Spring abstraction that manages a
+ * pool of consumer threads. The 'concurrency' on @KafkaListener overrides the factory default. -
+ * MANUAL_IMMEDIATE ack mode: we acknowledge each message immediately after processing. Later phases
+ * will explore batch acks and transactions. - TRUSTED_PACKAGES: required by JsonDeserializer to
+ * deserialise our event records. In production you'd lock this down to specific packages only.
  */
 @Configuration
 @RequiredArgsConstructor
 public class KafkaConsumerConfig {
 
     private final MatatuTrackerProperties properties;
-
 
     private static final String TRUSTED_PACKAGES = "org.matatu.tracker.model";
 
@@ -44,7 +41,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, LocationEvent> locationListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, LocationEvent>
+            locationListenerContainerFactory() {
         return listenerFactory(locationConsumerFactory());
     }
 
@@ -56,7 +54,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, FareEvent> fareListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, FareEvent>
+            fareListenerContainerFactory() {
         return listenerFactory(fareConsumerFactory());
     }
 
@@ -68,15 +67,16 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, EnrichedLocationEvent> enrichedLocationListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, EnrichedLocationEvent>
+            enrichedLocationListenerContainerFactory() {
         return listenerFactory(enrichedLocationConsumerFactory());
     }
-
 
     private <T> ConsumerFactory<String, T> consumerFactory(Class<T> targetType) {
         JacksonJsonDeserializer<T> deserializer = new JacksonJsonDeserializer<>(targetType, false);
         deserializer.addTrustedPackages(TRUSTED_PACKAGES);
-        return new DefaultKafkaConsumerFactory<>(baseProps(), new StringDeserializer(), deserializer);
+        return new DefaultKafkaConsumerFactory<>(
+                baseProps(), new StringDeserializer(), deserializer);
     }
 
     private <T> ConcurrentKafkaListenerContainerFactory<String, T> listenerFactory(
@@ -89,9 +89,11 @@ public class KafkaConsumerConfig {
 
     private Map<String, Object> baseProps() {
         return Map.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getKafka().getBootstrapServers(),
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false
-        );
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                properties.getKafka().getBootstrapServers(),
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest",
+                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
+                false);
     }
 }

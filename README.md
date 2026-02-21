@@ -108,3 +108,13 @@ curl -X POST http://localhost:8080/api/v1/fare \
     - *Stateful*: Data enrichment (using lookup maps).
 - **Consumer Groups**: Multiple consumers reading the same data for different purposes without interference.
 - **Kafka UI**: Use it to inspect messages, offsets, and consumer group status at `localhost:8090`.
+
+## Spotless Formatter
+This project uses [Spotless](https://github.com/diffplug/spotless) for code formatting.
+```shell
+# Check for formatting violations (used in CI)
+./mvnw spotless:check
+
+# Auto-fix all violations (use before committing)
+./mvnw spotless:apply
+```
