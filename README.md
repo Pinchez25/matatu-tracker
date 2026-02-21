@@ -45,7 +45,7 @@ This project simulates a fleet of matatus broadcasting GPS coordinates and fare 
 Launch the Kafka broker and Kafka UI using Docker Compose:
 
 ```powershell
-docker-compose up -d
+docker compose up -d
 ```
 
 *Kafka UI will be available at `http://localhost:8090`*
