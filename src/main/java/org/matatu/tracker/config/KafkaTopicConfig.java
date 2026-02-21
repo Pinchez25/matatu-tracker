@@ -1,8 +1,8 @@
 package org.matatu.tracker.config;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.matatu.tracker.topics.Topics;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
@@ -14,33 +14,47 @@ import org.springframework.kafka.config.TopicBuilder;
  * (which Spring Boot autoconfigures for you).
  * <p>
  * KEY CONCEPTS introduced here:
- *  - Partitions: splitting a topic into parallel lanes. We partition by routeId
- *    so each route's events are ordered independently.
- *  - Replication factor: how many broker copies exist. Use 1 for local dev,
- *    3+ in production.
+ * - Partitions: splitting a topic into parallel lanes. We partition by routeId
+ * so each route's events are ordered independently.
+ * - Replication factor: how many broker copies exist. Use 1 for local dev,
+ * 3+ in production.
  */
 @Configuration
+@RequiredArgsConstructor
 public class KafkaTopicConfig {
 
-    @Value("${app.kafka.partitions:3}")
-    private int partitions;
+    private final MatatuTrackerProperties properties;
 
-    @Value("${app.kafka.replication-factor:1}")
-    private short replicationFactor;
 
     @Bean
     public NewTopic locationTopic() {
-        return TopicBuilder.name(Topics.MATATU_LOCATION)
-                .partitions(partitions)
-                .replicas(replicationFactor)
-                .build();
+        return build(Topics.MATATU_LOCATION);
     }
 
     @Bean
     public NewTopic faresTopic() {
-        return TopicBuilder.name(Topics.MATATU_FARES)
-                .partitions(partitions)
-                .replicas(replicationFactor)
+        return build(Topics.MATATU_FARES);
+    }
+
+    @Bean
+    public NewTopic speedAlertsTopic() {
+        return build(Topics.MATATU_SPEED_ALERTS);
+    }
+
+    @Bean
+    public NewTopic enrichedLocationTopic() {
+        return build(Topics.MATATU_LOCATION_ENRICHED);
+    }
+
+    @Bean
+    public NewTopic failedFaresTopic() {
+        return build(Topics.MATATU_FARES_FAILED);
+    }
+
+    private NewTopic build(String name) {
+        return TopicBuilder.name(name)
+                .partitions(properties.getKafka().getPartitions())
+                .replicas(properties.getKafka().getReplicationFactor())
                 .build();
     }
 }
