@@ -29,6 +29,7 @@ app:
     # With 3 partitions and concurrency=3, each thread owns exactly one partition.
     partitions: 3
     replication-factor: 1   # use 1 for local dev; use 3 in production
+    bootstrap-servers: ${spring.kafka.bootstrap-servers:localhost:9092}
 
   simulator:
     # How often the fleet simulator fires (milliseconds)
@@ -37,7 +38,11 @@ app:
     enabled: true           # set to false to disable the simulator
 
   scheduling:
-    enabled: false
+    enabled: true
+
+  streams:
+    application-id: matatu-streams-app
+    speed-threshold-kmh: 80.0
 
 
 # ── Actuator for health checks ─────────────────────────────────────────────────
