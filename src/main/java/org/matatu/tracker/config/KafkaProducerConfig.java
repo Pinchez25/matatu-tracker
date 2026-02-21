@@ -1,8 +1,8 @@
 package org.matatu.tracker.config;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -27,15 +27,16 @@ import java.util.Map;
  * we pair this with idempotence for exactly-once guarantees.
  */
 @Configuration
+@RequiredArgsConstructor
 public class KafkaProducerConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
+    private final MatatuTrackerProperties properties;
+
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         return new DefaultKafkaProducerFactory<>(Map.of(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getKafka().getBootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class,
                 ProducerConfig.ACKS_CONFIG, "all",   // wait for all replicas
