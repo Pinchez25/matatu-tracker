@@ -43,6 +43,9 @@ app:
   streams:
     application-id: matatu-streams-app
     speed-threshold-kmh: 80.0
+    revenue-window-minutes: 1    # 1-min windows instead of 1-hour so you see output quickly
+    offgrid-silence-ms: 30000    # 30s silence threshold instead of 5 minutes
+    offgrid-check-interval-ms: 10000  # check every 10s
 
 
 # ── Actuator for health checks ─────────────────────────────────────────────────
