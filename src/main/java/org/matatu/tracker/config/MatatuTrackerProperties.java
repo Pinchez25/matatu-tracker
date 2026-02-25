@@ -18,7 +18,7 @@ public class MatatuTrackerProperties {
     public static class Kafka {
         private String bootstrapServers;
         private int partitions = 3;
-        private int replicationFactor = 1;
+        private short replicationFactor = 1;
     }
 
     @Data
