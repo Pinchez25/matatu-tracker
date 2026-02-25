@@ -5,6 +5,7 @@ import org.matatu.tracker.topics.Topics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.KafkaAdmin;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,34 +26,23 @@ public class KafkaTopicConfig {
     private final MatatuTrackerProperties properties;
 
     @Bean
-    public NewTopic locationTopic() {
-        return build(Topics.MATATU_LOCATION);
+    public KafkaAdmin.NewTopics matatuTopics() {
+        int partitions = properties.getKafka().getPartitions();
+        short replicas = properties.getKafka().getReplicationFactor();
+
+        return new KafkaAdmin.NewTopics(
+                build(Topics.MATATU_LOCATION, partitions, replicas),
+                build(Topics.MATATU_FARES, partitions, replicas),
+                build(Topics.MATATU_SPEED_ALERTS, partitions, replicas),
+                build(Topics.MATATU_LOCATION_ENRICHED, partitions, replicas),
+                build(Topics.MATATU_FARES_FAILED, partitions, replicas),
+                build(Topics.MATATU_PASSENGER_COUNTS, partitions, replicas),
+                build(Topics.MATATU_SACCO_REVENUE, partitions, replicas),
+                build(Topics.MATATU_OFFGRID_ALERTS, partitions, replicas),
+                build(Topics.MATATU_ROUTE_OCCUPANCY, partitions, replicas));
     }
 
-    @Bean
-    public NewTopic faresTopic() {
-        return build(Topics.MATATU_FARES);
-    }
-
-    @Bean
-    public NewTopic speedAlertsTopic() {
-        return build(Topics.MATATU_SPEED_ALERTS);
-    }
-
-    @Bean
-    public NewTopic enrichedLocationTopic() {
-        return build(Topics.MATATU_LOCATION_ENRICHED);
-    }
-
-    @Bean
-    public NewTopic failedFaresTopic() {
-        return build(Topics.MATATU_FARES_FAILED);
-    }
-
-    private NewTopic build(String name) {
-        return TopicBuilder.name(name)
-                .partitions(properties.getKafka().getPartitions())
-                .replicas(properties.getKafka().getReplicationFactor())
-                .build();
+    private NewTopic build(String name, int partitions, short replicas) {
+        return TopicBuilder.name(name).partitions(partitions).replicas(replicas).build();
     }
 }
