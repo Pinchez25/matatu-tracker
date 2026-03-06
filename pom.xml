@@ -12,7 +12,7 @@
   <artifactId>matatu-tracker</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>matatu-tracker</name>
-  <description>matatu-tracker</description>
+  <description>Nairobi Matatu Fleet Tracker — Kafka learning project</description>
   <url/>
   <licenses>
     <license/>
