@@ -15,7 +15,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  *
  * <p>The window boundaries are included so downstream consumers (e.g. a dashboard or accounting
  * system) know exactly which time period the revenue covers without needing to query Kafka
- * internals.
+ * internals. Structure {saccoId, saccoName, totalRevenueKes, transactionCount, windowStart,
+ * windowEnd, computedAt}
  */
 public record SaccoRevenueWindow(
         String saccoId,
