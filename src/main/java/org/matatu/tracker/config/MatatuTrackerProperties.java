@@ -25,5 +25,9 @@ public class MatatuTrackerProperties {
     public static class Streams {
         private String applicationId = "matatu-streams-app";
         private double speedThresholdKmh = 80.0;
+        private int revenueWindowMinutes = 60;
+        private int revenueGraceMinutes = 5;
+        private long offgridSilenceMs = 300000;
+        private long offgridCheckIntervalMs = 60000;
     }
 }
