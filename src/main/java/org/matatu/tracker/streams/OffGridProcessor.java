@@ -32,8 +32,7 @@ public class OffGridProcessor implements Processor<String, LocationEvent, String
         context.schedule(
                 Duration.ofMillis(checkIntervalMs),
                 PunctuationType.WALL_CLOCK_TIME,
-                this::checkForOffGridMatatus
-        );
+                this::checkForOffGridMatatus);
     }
 
     @Override

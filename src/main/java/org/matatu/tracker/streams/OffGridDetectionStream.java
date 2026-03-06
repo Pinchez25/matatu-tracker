@@ -1,7 +1,5 @@
 package org.matatu.tracker.streams;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -16,6 +14,9 @@ import org.matatu.tracker.topics.Topics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JacksonJsonSerde;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -56,9 +57,8 @@ public class OffGridDetectionStream {
         //                        Produced.with(Serdes.String(), offGridAlertSerde));
         // </editor-fold>
         locationStream
-//                .map((routeId, event) -> KeyValue.pair(event.matatuId(), event))
+                //                .map((routeId, event) -> KeyValue.pair(event.matatuId(), event))
                 .selectKey((routeId, event) -> event.matatuId())
-
                 .process(
                         new OffGridProcessorSupplier(
                                 properties.getStreams().getOffgridSilenceMs(),
